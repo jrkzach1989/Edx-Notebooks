@@ -1,0 +1,422 @@
+<center>
+    <img src="https://gitlab.com/ibm/skills-network/courses/placeholder101/-/raw/master/labs/module%201/images/IDSNlogo.png" width="300" alt="cognitiveclass.ai logo"  />
+</center>
+
+
+# **Data Visualization Lab**
+
+
+Estimated time needed: **45 to 60** minutes
+
+
+In this assignment you will be focusing on the visualization of data.
+
+The data set will be presented to you in the form of a RDBMS.
+
+You will have to use SQL queries to extract the data.
+
+
+## Objectives
+
+
+In this lab you will perform the following:
+
+
+*   Visualize the distribution of data.
+
+*   Visualize the relationship between two features.
+
+*   Visualize composition of data.
+
+*   Visualize comparison of data.
+
+
+<hr>
+
+
+## Demo: How to work with database
+
+
+Download database file.
+
+
+!wget https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DA0321EN-SkillsNetwork/LargeData/m4_survey_data.sqlite
+
+Connect to the database.
+
+
+import sqlite3
+conn = sqlite3.connect("m4_survey_data.sqlite") # open a database connection
+
+Import pandas module.
+
+
+import pandas as pd
+
+## Demo: How to run an sql query
+
+
+# print how many rows are there in the table named 'master'
+QUERY = """
+SELECT COUNT(*)
+FROM master
+"""
+
+# the read_sql_query runs the sql query and returns the data as a dataframe
+master=pd.read_sql_query(QUERY,conn)
+df = pd.read_sql_query(QUERY,conn)
+df.head()
+
+## Demo: How to list all tables
+
+
+# print all the tables names in the database
+QUERY = """
+SELECT name as Table_Name FROM
+sqlite_master WHERE
+type = 'table'
+"""
+# the read_sql_query runs the sql query and returns the data as a dataframe
+table_table=pd.read_sql_query(QUERY,conn)
+pd.read_sql_query(QUERY,conn)
+
+
+## Demo: How to run a group by query
+
+
+QUERY = """
+SELECT Age,COUNT(*) as count
+FROM master
+group by age
+order by age
+"""
+#Age=pd.read_sql_query(QUERY, conn)
+pd.read_sql_query(QUERY,conn)
+
+
+QUERY = """
+SELECT Age,COUNT(*) as count
+FROM master
+group by age
+order by age
+"""
+df_Age=pd.read_sql_query(QUERY, conn)
+#pd.read_sql_query(QUERY,conn)
+
+df_Age.describe()
+
+
+## Demo: How to describe a table
+
+
+table_name = 'master'  # the table you wish to describe
+
+QUERY = """
+SELECT sql FROM sqlite_master
+WHERE name= '{}'
+""".format(table_name)
+desc_master = pd.read_sql_query(QUERY,conn)
+df = pd.read_sql_query(QUERY,conn)
+print(df.iat[0,0])
+
+# Hands-on Lab
+
+
+## Visualizing distribution of data
+
+
+### Histograms
+
+
+Plot a histogram of `ConvertedComp.`
+
+
+import pyodbc 
+import matplotlib.pyplot as plt 
+import pandas as pd 
+
+import matplotlib as mpl
+
+QUERY = """
+SELECT *
+FROM master
+"""
+
+# the read_sql_query runs the sql query and returns the data as a dataframe
+df = pd.read_sql_query(QUERY,conn)
+
+df['ConvertedComp'].plot(kind='hist')
+plt.title('Histogram of ConvertedComp')
+
+
+
+### Box Plots
+
+
+Plot a box plot of `Age.`
+
+
+# your code goes here
+#QUERY = """
+#SELECT Age,COUNT(*) as count
+#FROM master
+#group by age
+#order by age
+#"""
+#df_Age=pd.read_sql_query(QUERY, conn)
+#pd.read_sql_query(QUERY,conn)
+df['Age'].plot(kind='box')
+plt.title('Boxplot of Age')
+
+
+
+
+
+
+## Visualizing relationships in data
+
+
+### Scatter Plots
+
+
+Create a scatter plot of `Age` and `WorkWeekHrs.`
+
+
+# your code goes here
+
+QUERY = """
+SELECT WorkWeekHrs,COUNT(*) as hours
+FROM master
+group by WorkWeekHrs
+order by WorkWeekHrs
+"""
+wkhours=pd.read_sql_query(QUERY,conn)
+
+plt.scatter(df['Age'],df['WorkWeekHrs'])
+plt.title('Scatter plot of age and workweek hours')
+plt.show()
+
+
+
+
+### Bubble Plots
+
+
+Create a bubble plot of `WorkWeekHrs` and `CodeRevHrs`, use `Age` column as bubble size.
+
+
+# your code goes here
+QUERY = """
+SELECT CodeRevHrs,COUNT(*) as revhours
+FROM master
+group by CodeRevHrs
+order by CodeRevHrs
+"""
+revhours=pd.read_sql_query(QUERY,conn)
+
+plt.scatter(df['WorkWeekHrs'],df['CodeRevHrs'], s=df['Age'],alpha=0.5)
+plt.title('Bubble plot of CodeRevHrs and workweek hours w Age as size')
+plt.show()
+
+
+## Visualizing composition of data
+
+
+### Pie Charts
+
+
+Create a pie chart of the top 5 databases that respondents wish to learn next year. Label the pie chart with database names. Display percentages of each database on the pie chart.
+
+
+# your code goes here
+###Changing this to top 5 countries bc that's what quiz question is
+
+QUERY = """
+SELECT Country,COUNT(*) as country
+FROM master
+group by Country
+order by Country
+"""
+pd.read_sql_query(QUERY,conn).tail(-5) 
+
+
+#country5=pd.read_sql_query(QUERY,conn)
+#plt.pie(df['country5'])
+#plt.title('Pie of Top 5 Countries')
+#plt.show()
+
+
+QUERY = """
+SELECT *
+FROM DatabaseDesireNextYear
+"""
+
+# the read_sql_query runs the sql query and returns the data as a dataframe
+df_db = pd.read_sql_query(QUERY,conn)
+df_count=df_db['DatabaseDesireNextYear'].value_counts().rename_axis('DatabaseName').reset_index(name='Counts')
+df_top5=df_count[:5].copy()
+
+plt.pie(df_top5['Counts'],labels=df_top5['DatabaseName'],autopct='%.2f')
+plt.title('Top 5 databases to learn')
+plt.show()
+
+QUERY = """
+SELECT *
+FROM DatabaseDesireNextYear
+"""
+
+# the read_sql_query runs the sql query and returns the data as a dataframe
+df_db = pd.read_sql_query(QUERY,conn)
+df_count=df_db['DatabaseDesireNextYear'].value_counts().rename_axis('DatabaseName').reset_index(name='Counts')
+df_top10=df_count[:10].copy()
+
+plt.pie(df_top10['Counts'],labels=df_top5['DatabaseName'],autopct='%.2f')
+
+plt.title('Top 10 databases to learn')
+plt.show()
+
+### Stacked Charts
+
+
+Create a stacked chart of median `WorkWeekHrs` and `CodeRevHrs` for the age group 30 to 35.
+
+
+# your code goes here
+
+# importing statistics module
+import statistics
+#statistics.median()
+ 
+QUERY = """
+SELECT Age,WorkWeekHrs,CodeRevHrs
+FROM master
+WHERE Age BETWEEN 30 AND 35
+"""
+df_wk = pd.read_sql_query(QUERY,conn)
+
+df_g=df_wk.groupby('Age').median()
+print("WorkWeek med", statistics.median(df_wk))
+df_g.plot(kind='bar',stacked=True)
+plt.title('Median workweek hrs and CodeRevHrs in 30-35 age group')
+plt.xlabel('Age')
+plt.ylabel('Hours')
+plt.show()
+
+
+## Visualizing comparison of data
+
+
+### Line Chart
+
+
+Plot the median `ConvertedComp` for all ages from 45 to 60.
+
+
+# your code goes here
+QUERY="""
+SELECT Age, ConvertedComp
+FROM master
+WHERE Age BETWEEN 45 AND 60
+"""
+comp_age = pd.read_sql_query(QUERY,conn)
+#pd.read_sql_query(QUERY,conn)
+df_comp_age_group=comp_age.groupby('Age').median()
+
+df_comp_age_group.plot(kind='line')
+##plt.plot(df["ConvertedComp"], df["Age"])
+plt.title("median ConvertedComp for all ages from 45 to 60")
+plt.xlabel('Age')
+plt.ylabel('Comp-Converted')
+plt.show()
+
+#QUERY = """
+#SELECT Age,ConvertedComp
+#FROM master
+#WHERE Age BETWEEN 45 AND 60
+#"""
+#df_ac = pd.read_sql_query(QUERY,conn)
+
+#df_gr=df_ac.groupby('Age').median()
+
+#df_gr.plot(kind='line')
+#plt.title('Median salary in 45-60 age group')
+#plt.xlabel('Age')
+#plt.ylabel('Salary')
+#plt.show()
+
+
+QUERY="""
+SELECT Age, ConvertedComp
+FROM master
+WHERE Age BETWEEN 45 AND 60
+"""
+pd.read_sql_query(QUERY,conn)
+df_compmed=pd.read_sql_query(QUERY, conn)
+df_compmed.median()
+
+QUERY="""
+SELECT Age, ConvertedComp
+FROM master
+WHERE Age BETWEEN 45 AND 60
+"""
+pd.read_sql_query(QUERY,conn)
+df_compmed=pd.read_sql_query(QUERY, conn)
+df_compmed.median()
+
+### Bar Chart
+
+
+Create a horizontal bar chart using column `MainBranch.`
+
+
+# your code goes here
+QUERY = """
+SELECT MainBranch
+FROM master
+"""
+df_mb = pd.read_sql_query(QUERY,conn)
+df_cnt=df_mb['MainBranch'].value_counts().rename_axis('MainBranch').reset_index(name='Counts')
+
+df_cnt.plot(kind='barh')
+plt.title('MainBranch')
+plt.show()
+
+
+df_mb = pd.read_sql_query(QUERY,conn)
+df_mb.describe()
+
+Close the database connection.
+
+
+QUERY = """
+SELECT MainBranch
+FROM master
+group by MainBranch
+order by MainBranch
+"""
+pd.read_sql_query(QUERY,conn) 
+
+
+conn.close()
+
+## Authors
+
+
+Ramesh Sannareddy
+
+
+### Other Contributors
+
+
+Rav Ahuja
+
+
+## Change Log
+
+
+| Date (YYYY-MM-DD) | Version | Changed By        | Change Description                 |
+| ----------------- | ------- | ----------------- | ---------------------------------- |
+| 2020-10-17        | 0.1     | Ramesh Sannareddy | Created initial version of the lab |
+
+
+Copyright © 2020 IBM Corporation. This notebook and its source code are released under the terms of the [MIT License](https://cognitiveclass.ai/mit-license?utm_medium=Exinfluencer&utm_source=Exinfluencer&utm_content=000026UJ&utm_term=10006555&utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMDA0321ENSkillsNetwork21426264-2021-01-01&cm_mmc=Email_Newsletter-\_-Developer_Ed%2BTech-\_-WW_WW-\_-SkillsNetwork-Courses-IBM-DA0321EN-SkillsNetwork-21426264&cm_mmca1=000026UJ&cm_mmca2=10006555&cm_mmca3=M12345678&cvosrc=email.Newsletter.M12345678&cvo_campaign=000026UJ).
